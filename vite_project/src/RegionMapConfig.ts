@@ -1,8 +1,9 @@
-import type {RegionMapConfig} from "./domain/regionmap.types.ts";
-
-export interface RegionMapWidgetConfig extends RegionMapConfig {
-    googleMapsApiKey: string | undefined;
-}
+import type {
+    ReactEdgeRuntimeConfig,
+    RegionMapWidgetConfig,
+    ResolvedRegionMapConfig
+} from "./domain/regionmap.types.ts";
+import {WIDGET_ID} from "./RegionMapWidget.tsx";
 
 export function readWidgetConfig(
     hostElement: HTMLElement
@@ -17,22 +18,49 @@ export function readWidgetConfig(
 
     try {
         const parsed = JSON.parse(configScript.textContent || "{}");
-
-        return Object.freeze({
-            title: parsed.data.title,
-            center: parsed.data.center,
-            zoom: parsed.data.zoom,
-            region: parsed.data.region,
-            googleMapsApiKey: parsed.integrations?.googleMaps?.apiKey
-        });
+        return Object.freeze(parsed);
     } catch {
-        return {
-            title: '',
-            center: undefined,
-            region: undefined,
-            zoom: 0,
-            googleMapsApiKey: ''
-        };
+        return null;
     }
 }
 
+export function readIntegrationConfig(): ReactEdgeRuntimeConfig {
+    const configScript = document.getElementById('reactedge-runtime');
+
+    if (!configScript) {
+        throw new Error(`${WIDGET_ID} widget requires a <script id='reactedge-runtime'> block.`);
+    }
+
+    let config: ReactEdgeRuntimeConfig;
+    try {
+        config = JSON.parse(configScript.textContent);
+    } catch {
+        throw new Error(`${WIDGET_ID}: reactedge-runtime contains invalid JSON`);
+    }
+
+    if (!config.integrations?.googleMaps?.apiKey) {
+        throw new Error(`${WIDGET_ID}: googleMaps missing in reactedge-runtime`);
+    }
+
+    return config;
+}
+
+export function resolveWidgetConfig(
+    widget: RegionMapWidgetConfig,
+    runtime: ReactEdgeRuntimeConfig
+): ResolvedRegionMapConfig {
+
+    if (
+        widget.integration?.requires?.includes('googleMaps') &&
+        !runtime.integrations?.googleMaps?.apiKey
+    ) {
+        throw new Error(`[${WIDGET_ID}] googleMaps integration required but not configured`);
+    }
+
+    return {
+        data: widget.data,
+        integrations: {
+            googleMaps: runtime.integrations?.googleMaps
+        }
+    };
+}

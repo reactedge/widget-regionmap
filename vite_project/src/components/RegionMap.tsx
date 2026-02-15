@@ -5,8 +5,8 @@ import {useSystemState} from "../state/System/useSystemState.ts";
 
 interface RegionMapProps {
     title?: string;
-    region: LatLng[] | undefined;
-    center: LatLng | undefined;
+    region: LatLng[];
+    center: LatLng;
     zoom: number;
 }
 

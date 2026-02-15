@@ -1,18 +1,29 @@
 import {useMemo} from "react";
-import {readWidgetConfig, type RegionMapWidgetConfig} from "../RegionMapConfig.ts";
+import {
+    readIntegrationConfig,
+    readWidgetConfig,
+    resolveWidgetConfig
+} from "../RegionMapConfig.ts";
 import {activity} from "../activity";
+import type {ResolvedRegionMapConfig} from "../domain/regionmap.types.ts";
 
-export function useWidgetConfig(host: HTMLElement): RegionMapWidgetConfig | null {
+export function useWidgetConfig(host: HTMLElement): ResolvedRegionMapConfig | null {
     return useMemo(() => {
-        const baseConfig = readWidgetConfig(host);
-        if (!baseConfig) {
-            activity('bootstrap', '[RegionMap] Widget is not correctly configured', null, 'error');
+        const widgetConfig = readWidgetConfig(host);
+        if (!widgetConfig) {
+            activity('bootstrap', 'Missing widget config', null, 'error');
             return null;
         }
 
-        activity('bootstrap', '[RegionMap] Widget config loaded', baseConfig);
+        const runtime = readIntegrationConfig();
+        const resolved = resolveWidgetConfig(widgetConfig, runtime);
 
-        return baseConfig
+        activity('bootstrap', 'Config resolved', {
+            data: resolved.data,
+            integrations: resolved.integrations
+        });
+
+        return resolved;
     }, []);
 }
 

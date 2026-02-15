@@ -1,27 +1,25 @@
 import {RegionMap} from "./components/RegionMap.tsx";
 import {useWidgetConfig} from "./hooks/useWidgetConfig.ts";
 import {SystemStateProvider} from "./state/System/SystemStateProvider.tsx";
-import {activity} from "./activity";
 
 type Props = {
     host: HTMLElement
 }
 
-export function RegionMapWidget({host}: Props) {
-    const widgetConfig = useWidgetConfig(host);
+export const WIDGET_ID = 'RegionMap';
 
-    if (!widgetConfig) {
-        activity('config-missing', '[ContactUs] Widget is not correctly configured',null, 'warn');
-        return null;
-    }
+export function RegionMapWidget({host}: Props) {
+    const config = useWidgetConfig(host);
+
+    if (!config) return null;
 
     return (
-        <SystemStateProvider config={widgetConfig}>
+        <SystemStateProvider config={config}>
             <RegionMap
-                title={widgetConfig.title}
-                region={widgetConfig.region}
-                center={widgetConfig.center}
-                zoom={widgetConfig.zoom}
+                title={config.data.title}
+                region={config.data.region}
+                center={config.data.center}
+                zoom={config.data.zoom}
             />
         </SystemStateProvider>
     );
