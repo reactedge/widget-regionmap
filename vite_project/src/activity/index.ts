@@ -1,5 +1,5 @@
 import { isActivityEnabled } from './activity.guard';
-import {WIDGET_ID} from "../RegionMapWidget.tsx";
+import {WIDGET_ID} from "../mountWidget.tsx";
 
 type Level = 'info' | 'warn' | 'error';
 
@@ -19,7 +19,7 @@ export function activity(
         ts: Date.now(),
     };
 
-    const prefix = `${phase}`;
+    const prefix = `[${WIDGET_ID}] ${phase}`;
 
     if (level === 'error') {
         console.error(prefix, payload);

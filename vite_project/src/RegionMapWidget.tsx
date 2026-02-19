@@ -6,8 +6,6 @@ type Props = {
     host: HTMLElement
 }
 
-export const WIDGET_ID = 'RegionMap';
-
 export function RegionMapWidget({host}: Props) {
     const config = useWidgetConfig(host);
 

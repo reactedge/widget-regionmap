@@ -3,7 +3,7 @@ import type {
     RegionMapWidgetConfig,
     ResolvedRegionMapConfig
 } from "./domain/regionmap.types.ts";
-import {WIDGET_ID} from "./RegionMapWidget.tsx";
+import {WIDGET_ID} from "./mountWidget.tsx";
 
 export function readWidgetConfig(
     hostElement: HTMLElement
