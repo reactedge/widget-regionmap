@@ -18,7 +18,7 @@ export function useWidgetConfig(host: HTMLElement): ResolvedRegionMapConfig | nu
         const runtime = readIntegrationConfig();
         const resolved = resolveWidgetConfig(widgetConfig, runtime);
 
-        activity('bootstrap', 'Config resolved', {
+        activity('bootstrap', 'Widget config', {
             data: resolved.data,
             integrations: resolved.integrations
         });

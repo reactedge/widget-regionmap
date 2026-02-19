@@ -13,6 +13,16 @@ interface RegionMapProps {
 export function RegionMap({ title, region, center, zoom }: RegionMapProps) {
     const { googleMapsApiKey } = useSystemState()
 
+    const containerStyle = useMemo(
+        () => ({
+            width: "100%",
+            height: "350px",
+            borderRadius: "12px",
+            overflow: "hidden"
+        }),
+        []
+    );
+
     const polygonOptions = useMemo(
         () => ({
             strokeColor: "#7b1fa2",
@@ -28,7 +38,7 @@ export function RegionMap({ title, region, center, zoom }: RegionMapProps) {
         <LoadScript googleMapsApiKey={googleMapsApiKey}>
             <h3 data-regionmap-title>{title}</h3>
             <GoogleMap
-                mapContainerClassName="re-regionmap"
+                mapContainerStyle={containerStyle}
                 center={center}
                 zoom={zoom}
                 options={{
