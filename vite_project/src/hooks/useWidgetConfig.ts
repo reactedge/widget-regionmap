@@ -1,30 +1,55 @@
-import {useMemo} from "react";
-import {
-    readIntegrationConfig,
-    readWidgetConfig,
-    resolveWidgetConfig
-} from "../RegionMapConfig.ts";
-import {activity} from "../activity";
+import {useEffect, useState} from "react";
 import type {ResolvedRegionMapConfig} from "../domain/regionmap.types.ts";
+import {readWidgetConfig} from "../RegionMapConfig.ts";
+import {activity} from "../activity";
 
-export function useWidgetConfig(host: HTMLElement): ResolvedRegionMapConfig | null {
-    return useMemo(() => {
-        const widgetConfig = readWidgetConfig(host);
-        if (!widgetConfig) {
-            activity('bootstrap', 'Missing widget config', null, 'error');
-            return null;
+export function useWidgetConfig(
+    host: HTMLElement
+): {
+    config: ResolvedRegionMapConfig | null;
+    error: Error | null;
+    loading: boolean;
+} {
+
+    const [config, setConfig] = useState<ResolvedRegionMapConfig | null>(null);
+    const [error, setError] = useState<Error | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function bootstrap() {
+            try {
+                setLoading(true);
+                const resolved = await readWidgetConfig(host);
+
+                if (!cancelled) {
+                    setConfig(resolved);
+                    setError(null);
+                }
+            } catch (err) {
+                activity('bootstrap', 'Config error', {
+                    error: (err as Error).message
+                });
+
+                if (!cancelled) {
+                    setError(err as Error);
+                    setConfig(null);
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
         }
 
-        const runtime = readIntegrationConfig();
-        const resolved = resolveWidgetConfig(widgetConfig, runtime);
+        bootstrap();
 
-        activity('bootstrap', 'Widget config', {
-            data: resolved.data,
-            integrations: resolved.integrations
-        });
+        return () => {
+            cancelled = true;
+        };
 
-        return resolved;
-    }, []);
+    }, [host]);
+
+    return { config, error, loading };
 }
 
 

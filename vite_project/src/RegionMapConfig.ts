@@ -4,8 +4,32 @@ import type {
     ResolvedRegionMapConfig
 } from "./domain/regionmap.types.ts";
 import {WIDGET_ID} from "./mountWidget.tsx";
+import {loadContract} from "./widget-runtime/lib/contractLoader.ts";
+import {activity} from "./activity";
 
-export function readWidgetConfig(
+export async function readWidgetConfig(
+    hostElement: HTMLElement
+): Promise<RegionMapWidgetConfig> {
+
+    let contract = null
+    try {
+        contract = await loadContract(hostElement);
+    } catch (e) {
+        contract = readFallbackWidgetConfig(hostElement)
+    }
+
+    const runtime = readIntegrationConfig();
+    const resolved = resolveWidgetConfig(contract, runtime);
+
+    activity('bootstrap', 'Widget config', {
+        data: resolved.data,
+        integrations: resolved.integrations
+    });
+
+    return Object.freeze(resolved);
+}
+
+export function readFallbackWidgetConfig(
     hostElement: HTMLElement
 ): RegionMapWidgetConfig | null {
     const configScript = hostElement.querySelector<HTMLScriptElement>(
