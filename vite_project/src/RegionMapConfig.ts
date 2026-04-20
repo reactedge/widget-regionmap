@@ -9,7 +9,7 @@ import {activity} from "./activity";
 
 export async function readWidgetConfig(
     hostElement: HTMLElement
-): Promise<RegionMapWidgetConfig> {
+): Promise<ResolvedRegionMapConfig> {
 
     let contract = null
     try {
