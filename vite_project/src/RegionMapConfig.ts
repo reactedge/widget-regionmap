@@ -4,17 +4,15 @@ import type {
     ResolvedRegionMapConfig
 } from "./domain/regionmap.types.ts";
 import {WIDGET_ID} from "./mountWidget.tsx";
-import {loadContract} from "./widget-runtime/lib/contractLoader.ts";
 import {activity} from "./activity";
 
-export async function readWidgetConfig(
-    hostElement: HTMLElement
-): Promise<ResolvedRegionMapConfig> {
+export function readWidgetConfig(
+    hostElement: HTMLElement,
+    rawConfig: RegionMapWidgetConfig | undefined
+): ResolvedRegionMapConfig {
 
-    let contract = null
-    try {
-        contract = await loadContract(hostElement);
-    } catch (e) {
+    let contract = rawConfig
+    if (contract === null) {
         contract = readFallbackWidgetConfig(hostElement)
     }
 
@@ -31,7 +29,7 @@ export async function readWidgetConfig(
 
 export function readFallbackWidgetConfig(
     hostElement: HTMLElement
-): RegionMapWidgetConfig | null {
+): RegionMapWidgetConfig | undefined {
     const configScript = hostElement.querySelector<HTMLScriptElement>(
         'script[type="application/json"][data-config]'
     );
@@ -44,7 +42,7 @@ export function readFallbackWidgetConfig(
         const parsed = JSON.parse(configScript.textContent || "{}");
         return Object.freeze(parsed);
     } catch {
-        return null;
+
     }
 }
 
@@ -70,9 +68,12 @@ export function readIntegrationConfig(): ReactEdgeRuntimeConfig {
 }
 
 export function resolveWidgetConfig(
-    widget: RegionMapWidgetConfig,
+    widget: RegionMapWidgetConfig | undefined,
     runtime: ReactEdgeRuntimeConfig
 ): ResolvedRegionMapConfig {
+    if (widget === undefined) {
+        throw new Error(`[${WIDGET_ID}] config is missing`);
+    }
 
     if (
         widget.integration?.requires?.includes('googleMaps') &&

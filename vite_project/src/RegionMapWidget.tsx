@@ -1,17 +1,17 @@
 import {RegionMap} from "./components/RegionMap.tsx";
-import {useWidgetConfig} from "./hooks/useWidgetConfig.ts";
 import {SystemStateProvider} from "./state/System/SystemStateProvider.tsx";
-import {ErrorState} from "./components/global/ErrorState.tsx";
+import type {RegionMapWidgetConfig} from "./domain/regionmap.types.ts";
+import {readWidgetConfig} from "./RegionMapConfig.ts";
 
 type Props = {
     host: HTMLElement
+    rawConfig: RegionMapWidgetConfig | undefined
 }
 
-export function RegionMapWidget({host}: Props) {
-    const {config, error} = useWidgetConfig(host);
+export function RegionMapWidget({host, rawConfig }: Props) {
+    const config = readWidgetConfig(host, rawConfig);
 
     if (!config) return null;
-    if (error) return <ErrorState error={error}  />
 
     return (
         <SystemStateProvider config={config}>

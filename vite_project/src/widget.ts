@@ -1,9 +1,12 @@
-import { mountWidget } from "./mountWidget";
+import {mountWidget, WIDGET_ID} from "./mountWidget";
+import type {RegionMapWidgetConfig} from "./domain/regionmap.types.ts";
 
-class RegionMapWidget extends HTMLElement {
-    connectedCallback() {
-        mountWidget(this);
-    }
+const mount = async (el: HTMLElement, config: RegionMapWidgetConfig) => {
+    await mountWidget(el, config)
 }
 
-customElements.define("regionmap-widget", RegionMapWidget);
+const api = { mount };
+
+(window as any)[`ReactEdge_${WIDGET_ID}`] = api;
+
+export { mount };
