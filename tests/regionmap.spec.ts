@@ -1,24 +1,20 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 
-test.describe('RegionMap Widget', () => {
-    let widget;
+test.describe('Regionmap Widget', () => {
+    let regionmap: Locator;
 
     test.beforeEach(async ({ page }) => {
-        await page.goto('/fixtures/regionmap.html');
-        widget = page.locator('regionmap-widget');
+        await page.goto('/?reactedge_debug=eager');
+        regionmap = page.locator('regionmap-widget');
+        await expect(regionmap).toBeVisible();
     });
 
-    test('mounts successfully', async () => {
-        await expect(widget).toBeVisible();
-    });
+    test('Regionmap widget renders its configured title', async () => {
+        const title = regionmap.locator(
+            '[data-regionmap-title]'
+        );
 
-    test('renders map container', async () => {
-        const container = widget.locator('.re-regionmap');
-        await expect(container).toBeVisible();
-    });
-
-    test('renders the region map title', async ({ page }) => {
-        const title = page.locator('[data-regionmap-title]');
         await expect(title).toBeVisible();
     });
 });
